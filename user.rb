@@ -57,4 +57,8 @@ class User
   def authored_replies
     Reply.find_by_user_id(self.id)
   end
+  
+  def followed_questions
+    QuestionFollow.followed_questions_for_user_id(@id)
+  end
 end
