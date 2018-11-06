@@ -10,7 +10,7 @@ class QuestionsDatabase < SQLite3::Database
     self.results_as_hash = true
   end
 end
-
+# -----------------------------------------------------------------#
 class Question
   attr_accessor :title, :body, :author_id
   
@@ -40,16 +40,39 @@ class Question
     Question.new(data.first)
   end
   
+  def self.find_by_author_id(author_id)
+    data = QuestionsDatabase.instance.execute(<<-SQL, author_id)
+      SELECT
+        *
+      FROM
+        questions
+      WHERE
+        author_id = ?
+    SQL
+    return nil unless data.length > 0
+    
+    Question.new(data.first)
+  end
+  
   def initialize(options)
     @id = options['id']
     @title = options['title']
     @body = options['body']
     @author_id = options['author_id']
   end
+  
+  def author
+    User.find_by_id(@author_id)
+  end
+  
+  def replies
+    Reply.find_by_question_id(@id)
+  end
 end
-
+# -----------------------------------------------------------------#
 class User
   attr_accessor :fname, :lname
+  attr_reader :id
   
   def self.all
     data = QuestionsDatabase.instance.execute(<<-SQL)
@@ -90,14 +113,22 @@ class User
     
     User.new(data.first)
   end
-  
+    
   def initialize(options)
     @id = options['id']
     @fname = options['fname']
     @lname = options['lname']
   end
+  
+  def authored_questions
+    Question.find_by_author_id(self.id)
+  end
+  
+  def authored_replies
+    Reply.find_by_user_id(self.id)
+  end
 end
-
+# -----------------------------------------------------------------#
 class QuestionFollow
   attr_accessor :user_id, :question_id
   
@@ -134,7 +165,7 @@ class QuestionFollow
     @question_id = options['question_id']
   end
 end
-
+# -----------------------------------------------------------------#
 class Reply
   attr_accessor :question_id, :parent_id, :user_id, :body
   
@@ -147,7 +178,7 @@ class Reply
     SQL
     return nil unless data.length > 0
     
-    data.map { |d| Question.new(d) }
+    data.map { |d| Reply.new(d) }
   end
   
   def self.find_by_id(id)
@@ -161,7 +192,7 @@ class Reply
     SQL
     return nil unless data.length > 0
     
-    QuestionFollow.new(data.first)
+    Reply.new(data.first)
   end
   
   def self.find_by_user_id(user_id)
@@ -175,7 +206,7 @@ class Reply
     SQL
     return nil unless data.length > 0
     
-    QuestionFollow.new(data.first)
+    Reply.new(data.first)
   end
   
   def self.find_by_question_id(question_id)
@@ -189,7 +220,7 @@ class Reply
     SQL
     return nil unless data.length > 0
     
-    QuestionFollow.new(data.first)
+    Reply.new(data.first)
   end
   
   def initialize(options)
@@ -200,8 +231,20 @@ class Reply
     @body = options['body']
   end
   
+  def author
+    User.find_by_id(@user_id)
+  end
+  
+  def question
+    Question.find_by_id(@question_id)
+  end
+  
+  def parent_reply
+    return nil unless @parent_id
+    Reply.find_by_id(@parent_id)
+  end
 end
-
+# -----------------------------------------------------------------#
 class QuestionLike
   attr_accessor :user_id, :question_id
   
@@ -214,7 +257,7 @@ class QuestionLike
     SQL
     return nil unless data.length > 0
     
-    data.map { |d| Question.new(d) }
+    data.map { |d| QuestionLike.new(d) }
   end
   
   def self.find_by_user_id(user_id)
@@ -228,7 +271,7 @@ class QuestionLike
     SQL
     return nil unless data.length > 0
     
-    QuestionFollow.new(data.first)
+    QuestionLike.new(data.first)
   end
   
   def self.find_by_question_id(question_id)
@@ -242,7 +285,7 @@ class QuestionLike
     SQL
     return nil unless data.length > 0
     
-    QuestionFollow.new(data.first)
+    QuestionLike.new(data.first)
   end
   
   def initialize(options)
