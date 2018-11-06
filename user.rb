@@ -85,4 +85,26 @@ class User
     
     data.first.values.first
   end
+  
+  def save
+    if @id.nil?
+      QuestionsDatabase.instance.execute(<<-SQL, @fname, @lname)
+        INSERT INTO
+          users (fname, lname)
+        VALUES
+          (?, ?)
+      SQL
+      @id = SQLite3::Database.last_insert_row_id
+    else
+      QuestionsDatabase.instance.execute(<<-SQL, @fname, @lname, @id)
+        UPDATE
+          users
+        SET
+          fname = ?, lname = ?
+        WHERE
+          id = ?
+      SQL
+      @id
+    end
+  end
 end
