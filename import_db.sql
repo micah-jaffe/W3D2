@@ -54,7 +54,8 @@ INSERT INTO
   users (fname, lname)
 VALUES
   ('Micah', 'Jaffe'),
-  ('Chase', 'Lim');
+  ('Chase', 'Lim'),
+  ('Ryan', 'Mapa');
   
 INSERT INTO
   questions (title, body, author_id)
@@ -65,13 +66,23 @@ VALUES
   
   ('How do u turn on computer?!',
   'computer not turn on how turn on screen all black :(',
-  (SELECT id FROM users WHERE fname = 'Chase'));
+  (SELECT id FROM users WHERE fname = 'Chase')),
+  
+  ('Why does my paired programming partner suck?',
+  'All he does is drink water and hit on Ryan',
+  (SELECT id FROM users WHERE fname = 'Chase')),
+  
+  ('Can my child''s name be NULL? Asking for a friend',
+  'My child is the void',
+  (SELECT id FROM users WHERE fname = 'Micah'));
   
 INSERT INTO 
   question_follows (user_id, question_id)
 VALUES
   (2, 1),
-  (1, 2);
+  (1, 2),
+  (1, 3),
+  (2, 3);
 
 INSERT INTO
   replies (question_id, parent_id, user_id, body)
@@ -83,7 +94,10 @@ INSERT INTO
   question_likes (user_id, question_id)
 VALUES
   (1, 1),
-  (2, 1);
+  (2, 1),
+  (1, 4),
+  (2, 4),
+  (3, 4);
   
 
   

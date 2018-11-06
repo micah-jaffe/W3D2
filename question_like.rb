@@ -43,6 +43,66 @@ class QuestionLike
     QuestionLike.new(data.first)
   end
   
+  def self.likers_for_question_id(question_id)
+    data = QuestionsDatabase.instance.execute(<<-SQL, question_id)
+      SELECT
+        users.*
+      FROM
+        questions
+      JOIN 
+        question_likes
+      ON questions.id = question_likes.question_id
+      JOIN 
+        users
+      ON users.id = question_likes.user_id
+      WHERE
+        questions.id = ?
+    SQL
+    return nil unless data.length > 0
+    
+    data.map { |d| User.new(d) }
+  end
+  
+  def self.num_likes_for_question_id(question_id)
+    data = QuestionsDatabase.instance.execute(<<-SQL, question_id)
+      SELECT
+        COUNT(question_likes.id)
+      FROM
+        questions
+      JOIN 
+        question_likes
+      ON questions.id = question_likes.question_id
+      JOIN 
+        users
+      ON users.id = question_likes.user_id
+      WHERE
+        questions.id = ?
+    SQL
+    return nil unless data.length > 0
+    
+    data.first.values.first
+  end
+  
+  def self.liked_questions_for_user_id(user_id)
+    data = QuestionsDatabase.instance.execute(<<-SQL, user_id)
+      SELECT
+        questions.*
+      FROM
+        questions
+      JOIN 
+        question_likes
+      ON questions.id = question_likes.question_id
+      JOIN 
+        users
+      ON users.id = question_likes.user_id
+      WHERE
+        users.id = ?
+    SQL
+    return nil unless data.length > 0
+    
+    data.map { |d| Question.new(d) }
+  end
+  
   def initialize(options)
     @id = options['id']
     @question_id = options['question_id']
