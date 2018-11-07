@@ -1,34 +1,8 @@
 require_relative 'required'
 
-class User
+class User < ModelBase
   attr_accessor :fname, :lname
   attr_reader :id
-  
-  def self.all
-    data = QuestionsDatabase.instance.execute(<<-SQL)
-      SELECT
-        *
-      FROM
-        users
-    SQL
-    return nil unless data.length > 0
-    
-    data.map { |d| User.new(d) }
-  end
-  
-  def self.find_by_id(id)
-    data = QuestionsDatabase.instance.execute(<<-SQL, id)
-      SELECT
-        *
-      FROM
-        users
-      WHERE
-        id = ?
-    SQL
-    return nil unless data.length > 0
-    
-    User.new(data.first)
-  end
   
   def self.find_by_name(fname, lname)
     data = QuestionsDatabase.instance.execute(<<-SQL, fname, lname)

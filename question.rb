@@ -1,33 +1,7 @@
 require_relative 'required'
 
-class Question
+class Question < ModelBase
   attr_accessor :title, :body, :author_id
-  
-  def self.all
-    data = QuestionsDatabase.instance.execute(<<-SQL)
-      SELECT
-        *
-      FROM
-        questions
-    SQL
-    return nil unless data.length > 0
-    
-    data.map { |d| Question.new(d) }
-  end
-  
-  def self.find_by_id(id)
-    data = QuestionsDatabase.instance.execute(<<-SQL, id)
-      SELECT
-        *
-      FROM
-        questions
-      WHERE
-        id = ?
-    SQL
-    return nil unless data.length > 0
-    
-    Question.new(data.first)
-  end
   
   def self.find_by_author_id(author_id)
     data = QuestionsDatabase.instance.execute(<<-SQL, author_id)

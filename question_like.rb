@@ -1,19 +1,7 @@
 require_relative 'required'
 
-class QuestionLike
+class QuestionLike < ModelBase
   attr_accessor :user_id, :question_id
-  
-  def self.all
-    data = QuestionsDatabase.instance.execute(<<-SQL)
-      SELECT
-        *
-      FROM
-        question_likes
-    SQL
-    return nil unless data.length > 0
-    
-    data.map { |d| QuestionLike.new(d) }
-  end
   
   def self.find_by_user_id(user_id)
     data = QuestionsDatabase.instance.execute(<<-SQL, user_id)

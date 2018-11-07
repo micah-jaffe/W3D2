@@ -1,33 +1,7 @@
 require_relative 'required'
 
-class Reply
+class Reply < ModelBase
   attr_accessor :question_id, :parent_id, :user_id, :body
-  
-  def self.all
-    data = QuestionsDatabase.instance.execute(<<-SQL)
-      SELECT
-        *
-      FROM
-        replies
-    SQL
-    return nil unless data.length > 0
-    
-    data.map { |d| Reply.new(d) }
-  end
-  
-  def self.find_by_id(id)
-    data = QuestionsDatabase.instance.execute(<<-SQL, id)
-      SELECT
-        *
-      FROM
-        replies
-      WHERE
-        id = ?
-    SQL
-    return nil unless data.length > 0
-    
-    Reply.new(data.first)
-  end
   
   def self.find_by_user_id(user_id)
     data = QuestionsDatabase.instance.execute(<<-SQL, user_id)

@@ -1,6 +1,6 @@
 require_relative 'required'
 
-class QuestionFollow
+class QuestionFollow < ModelBase
   attr_accessor :user_id, :question_id
   
   def self.find_by_question_id(question_id)
