@@ -28,12 +28,11 @@ class ModelBase
     self.new(data.first)
   end
   
-  def self.where(options)
+  def self.find_by(options)
     where_clause = ""
     options.each do |key, val|
       where_clause << " AND #{key} = '#{val}'"
     end
-    
     data = QuestionsDatabase.instance.execute(<<-SQL)
       SELECT
         *
@@ -41,6 +40,20 @@ class ModelBase
         #{ActiveSupport::Inflector.tableize(self.name)}
       WHERE 
         1 = 1 #{where_clause}
+    SQL
+    return nil unless data.length > 0
+    
+    data.map { |d| self.new(d) }
+  end
+  
+  def self.where(where_clause)
+    data = QuestionsDatabase.instance.execute(<<-SQL)
+      SELECT
+        *
+      FROM
+        #{ActiveSupport::Inflector.tableize(self.name)}
+      WHERE 
+        #{where_clause}
     SQL
     return nil unless data.length > 0
     
