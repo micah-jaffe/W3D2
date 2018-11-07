@@ -61,7 +61,6 @@ class ModelBase
   end
   
   def initialize
-    
   end
   
 end
